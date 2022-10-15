@@ -2,7 +2,7 @@ import os
 import openai
 import json
 from flask_cors import cross_origin
-from flask import Flask, request, Response
+from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -76,13 +76,15 @@ def create_app(test_config=None):
 
     @app.get("/get_summaries")
     def get_summaries():
+        response = jsonify(summaries)
         response.headers.add("Access-Control-Allow-Origin", "*")
-        return summaries
+        return response
 
     @app.get("/total_summary")
     def total_summary():
+        response = summarize_summaries(summaries)
         response.headers.add("Access-Control-Allow-Origin", "*")
-        return summarize_summaries(summaries)
+        return response
 
     return app
 
