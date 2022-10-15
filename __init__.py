@@ -68,7 +68,7 @@ def create_app(test_config=None):
         summaries.append(Summary(data["title"], data["body"], data["generator"], Generator(0.8, 12, 5, 10, "text-davinci-002", 300)))
     
     @app.post('/clear_summaries')
-    def create_summary():
+    def clear_summary():
         summaries = []
 
     @app.get("/get_summaries")
