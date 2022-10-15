@@ -1,8 +1,8 @@
 import os
 import openai
 import json
-from flask_cors import cross_origin
-from flask import Flask, request, jsonify
+from flask_cors import cross_origin, CORS
+from flask import Flask, request, jsonify, Response
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -37,7 +37,7 @@ class Generator:
         return completion_text
 
 class Summary:
-    def __init__(self, title, body, url, generator, id):
+    def __init__(self, title, body, url, generator):
         self.title = title
         self.body = body
         self.url = url
@@ -49,10 +49,12 @@ class Summary:
 
 #text-davinci-002, temp = 0.8
 
+global summaries
 summaries = []
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
+    CORS(app)
     app.config.from_mapping(
         SECRET_KEY = "dev",
         DATABASE = os.path.join(app.instance_path, 'flaskr.sqlite')
@@ -64,25 +66,28 @@ def create_app(test_config=None):
         pass
 
     @app.post('/create_summary')
-    @cross_origin()
     def create_summary():
         data = request.json
-        summaries.append(Summary(data["title"], data["body"], data["generator"], Generator(0.8, 12, 5, 10, "text-davinci-002", 300)))
+        summaries.append(Summary(data["title"], data["body"], data["url"], Generator(0.8, 12, 5, 10, "text-davinci-002", 300)))
+        print(summaries)
+        return jsonify(success=True)
     
     @app.post('/clear_summaries')
-    @cross_origin()
     def clear_summary():
-        summaries = []
+        summaries.clear()
+        return jsonify(success=True)
 
     @app.get("/get_summaries")
     def get_summaries():
-        response = jsonify(summaries)
+        all_summaries = [{"title": s.title, "summarized_body": s.summarized_body, "body": s.body, "url": s.url} for s in summaries]
+        response = jsonify(all_summaries)
         response.headers.add("Access-Control-Allow-Origin", "*")
         return response
 
     @app.get("/total_summary")
     def total_summary():
-        response = summarize_summaries(summaries)
+        s = summarize_summaries(summaries)
+        response = jsonify({"title": s.title, "summarized_body": s.summarized_body, "body": s.body, "url": s.url})
         response.headers.add("Access-Control-Allow-Origin", "*")
         return response
 
