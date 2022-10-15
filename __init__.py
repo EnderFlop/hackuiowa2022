@@ -1,7 +1,8 @@
 import os
 import openai
 import json
-from flask import Flask, request
+from flask_cors import cross_origin
+from flask import Flask, request, Response
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -63,20 +64,24 @@ def create_app(test_config=None):
         pass
 
     @app.post('/create_summary')
+    @cross_origin()
     def create_summary():
         data = request.json
         summaries.append(Summary(data["title"], data["body"], data["generator"], Generator(0.8, 12, 5, 10, "text-davinci-002", 300)))
     
     @app.post('/clear_summaries')
+    @cross_origin()
     def clear_summary():
         summaries = []
 
     @app.get("/get_summaries")
     def get_summaries():
+        response.headers.add("Access-Control-Allow-Origin", "*")
         return summaries
 
     @app.get("/total_summary")
     def total_summary():
+        response.headers.add("Access-Control-Allow-Origin", "*")
         return summarize_summaries(summaries)
 
     return app
