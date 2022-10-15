@@ -36,7 +36,7 @@ class Generator:
         return completion_text
 
 class Summary:
-    def __init__(self, title, body, url, generator):
+    def __init__(self, title, body, url, generator, id):
         self.title = title
         self.body = body
         self.url = url
@@ -47,6 +47,8 @@ class Summary:
         print(self.summarized_body)
 
 #text-davinci-002, temp = 0.8
+
+summaries = []
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
@@ -63,19 +65,19 @@ def create_app(test_config=None):
     @app.post('/create_summary')
     def create_summary():
         data = request.json
-        string = ""
-        string += data["title"] + "\n"
-        string += data["url"] + "\n"
-        string += data["body"] + "\n"
-        return string
+        summaries.append(Summary(data["title"], data["body"], data["generator"], Generator(0.8, 12, 5, 10, "text-davinci-002", 300)))
     
+    @app.post('/clear_summaries')
+    def create_summary():
+        summaries = []
+
     @app.get("/get_summaries")
     def get_summaries():
-        pass
+        return summaries
 
     @app.get("/total_summary")
     def total_summary():
-        pass
+        return summarize_summaries(summaries)
 
     return app
 
@@ -83,14 +85,4 @@ def summarize_summaries(summaries):
     bodies = [s.summarized_body for s in summaries]
     print(bodies)
     complete_body = "\n\n\n".join(bodies)
-    generator = Generator(0.8, 12, 10, 15, "text-davinci-002", 800)
-    new_summary = Summary("Compiled Summary", complete_body, "studytron9000.tech", generator)
-    print(new_summary.print_summarized_text())
-
-
-# summaries = []
-# generator = Generator(0.8, 12, 5, 10, "text-davinci-002", 300)
-# for i in range(2):
-#     with open(f"./inputs/input{i}.txt", encoding="UTF-8") as text:
-#         summaries.append(Summary(f"Civil War {i}", text.read(), "history.com", generator))
-# summarize_summaries(summaries)
+    return Summary("Compiled Summary", complete_body, "studytron9000.tech", Generator(0.8, 12, 10, 15, "text-davinci-002", 800))
