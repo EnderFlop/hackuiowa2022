@@ -1,4 +1,4 @@
-# hackuiowa2022
+# Sumthing Summarize
 https://devpost.com/software/490889  
 Placed 3rd overall at HackUIOWA 2022!  
 This is the Python/Flask backend, the React frontend and Google Chrome Extension can be found at https://github.com/paaatrrrick/sumthingsummarize
