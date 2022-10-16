@@ -8,12 +8,14 @@ Years of studying in high school and college has taken its toll. The brain can o
 
 # What it does
 Processes many highlighted paragraphs into summarized excerpts, then displays them on an additional website.  
-It also summarizes the summaries for a big picture overview!
+It also summarizes the summaries for a big picture overview!  
+Review your entries any time or take a quiz with generated multiple choice questions that will help prepare you for your test!
 
 # How we built it
 A Chrome Extension adds a button to you right click field when highlighting text.  
 `Click Add to Text Summary` to send it to the Python/Flask backend which manipulates the data and summarizes it with OpenAI's GPT-3.  
-Finally, when you load sumthingsummarize.com, you can find all your saved summaries on our React frontend!
+It also generates a multiple choice question for each summary allowing you to simulate a test and see how much you remember.  
+Finally, when you load the webpage, you can find all your saved summaries on our React frontend!
 
 # Challenges we ran into
 We had to learn Flask from scratch, and we ran into a lot of issues with CORS when sending PUSH requests to the backend. We managed to get it all sorted out and working with some help from the organizers.
