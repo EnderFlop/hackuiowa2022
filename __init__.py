@@ -45,6 +45,14 @@ class Generator:
 
     def generate_answer(self, text):
         prompt = f"Choose the correct answer:\n\n{text}"
+        completion = openai.Completion.create(  engine = self.model, 
+                                                temperature = self.temperature, 
+                                                prompt = prompt, 
+                                                max_tokens = self.max_tokens,
+                                                frequency_penalty = 1.0
+                                                )
+        completion_text = completion.choices[0].text
+        return completion_text
 
 class Summary:
     def __init__(self, title, body, url, generator):
@@ -54,6 +62,7 @@ class Summary:
         self.generator = generator
         self.summarized_body = self.generator.generate_summary(self.body)
         self.quiz = self.generator.generate_quiz(self.body)
+        self.answers = None
     
     def print_summarized_text(self):
         print(self.summarized_body)
@@ -92,6 +101,8 @@ def create_app(test_config=None):
 
     @app.get("/get_summaries")
     def get_summaries():
+        if not summaries:
+            return []
         all_summaries = [{"title": s.title, "summarized_body": s.summarized_body, "body": s.body, "url": s.url} for s in summaries]
         response = jsonify(all_summaries)
         response.headers.add("Access-Control-Allow-Origin", "*")
@@ -99,16 +110,23 @@ def create_app(test_config=None):
 
     @app.get("/total_summary")
     def total_summary():
+        if not summaries:
+            return []
         s = summarize_summaries(summaries)
         response = jsonify({"title": s.title, "summarized_body": s.summarized_body, "body": s.body, "url": s.url})
         response.headers.add("Access-Control-Allow-Origin", "*")
         return response
 
+    @app.get('/generate_answers')
+    def generate_quiz_answers():
+        for s in summaries:
+            s.generate_answers()
+        return jsonify(success=True)
+
     @app.get('/quiz')
     def quiz():
-        all_quizes = [s.quiz for s in summaries]
-        all_answers = [s.generate_answers() for s in summaries]
-        response = jsonify(zip(all_quizes, all_answers))
+        answers_to_quizes = [{s.quiz: s.answers} for s in summaries]
+        response = jsonify(answers_to_quizes)
         response.headers.add("Access-Control-Allow-Origin", "*")
         return response
 
